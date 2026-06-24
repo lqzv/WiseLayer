@@ -1,0 +1,50 @@
+{
+  "name": "wiselayer",
+  "version": "0.1.0",
+  "description": "WMS/WMTS layer abstraction for Cesium",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup && node scripts/copy-native-lib.mjs",
+    "dev": "tsup --watch --onSuccess \"node scripts/copy-native-lib.mjs\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "docs:api": "typedoc",
+    "prepublishOnly": "npm run build && npm run test",
+    "release": "npm publish"
+  },
+  "keywords": [
+    "cesium",
+    "wms",
+    "wmts",
+    "ogc",
+    "gis",
+    "imagery",
+    "layer"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "cesium": "^1.142.0"
+  },
+  "devDependencies": {
+    "cesium": "^1.142.0",
+    "happy-dom": "^20.10.6",
+    "tsup": "^8.4.0",
+    "typedoc": "^0.28.19",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

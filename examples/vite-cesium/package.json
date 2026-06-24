@@ -1,0 +1,19 @@
+{
+  "name": "vite-cesium-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "cesium": "^1.142.0",
+    "wiselayer": "file:../.."
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-cesium": "^1.2.23"
+  }
+}

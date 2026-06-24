@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WiseLayer · WMTS 原生 HTML 示例</title>
+    <link rel="stylesheet" href="./lib/Cesium142/Build/Cesium/Widgets/widgets.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="cesiumContainer"></div>
+      <aside id="panel">
+        <h1>WMTS 图层</h1>
+        <p class="hint">ArcGIS World Imagery</p>
+
+        <div class="layer-header">
+          <h2>全球影像</h2>
+          <button type="button" id="locateBtn" class="locate-btn">定位</button>
+        </div>
+
+        <label class="row">
+          <span>显示图层</span>
+          <input type="checkbox" id="visibleInput" checked />
+        </label>
+        <label class="row">
+          <span>透明度</span>
+          <input type="range" id="alphaInput" min="0" max="1" step="0.05" value="1" />
+        </label>
+      </aside>
+    </div>
+
+    <script>
+      window.CESIUM_BASE_URL = './lib/Cesium142/Build/Cesium/';
+    </script>
+    <script src="./lib/Cesium142/Build/Cesium/Cesium.js"></script>
+    <script src="./lib/wiselayer/wiselayer.global.js"></script>
+    <script>
+      const WMTS_LAYER_CONFIG = {
+        type: 'wmts',
+        name: 'World Imagery',
+        url: 'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/WMTS',
+        layer: 'World_Imagery',
+        style: 'default',
+        format: 'image/jpeg',
+        tileMatrixSetID: 'default028mm',
+        maximumLevel: 19,
+        rectangle: { west: -180, south: -85, east: 180, north: 85 },
+      };
+
+      function getElement(id) {
+        const element = document.getElementById(id);
+        if (!element) {
+          throw new Error('未找到 DOM 元素：#' + id);
+        }
+        return element;
+      }
+
+      const viewer = WiseLayer.createViewer('cesiumContainer');
+      const wmtsLayer = WiseLayer.createLayer(WMTS_LAYER_CONFIG);
+      wmtsLayer.addTo(viewer);
+
+      const visibleInput = getElement('visibleInput');
+      const alphaInput = getElement('alphaInput');
+      const locateBtn = getElement('locateBtn');
+
+      visibleInput.addEventListener('change', function () {
+        wmtsLayer.setVisible(visibleInput.checked);
+      });
+
+      alphaInput.addEventListener('input', function () {
+        wmtsLayer.setAlpha(Number(alphaInput.value));
+      });
+
+      locateBtn.addEventListener('click', function () {
+        try {
+          wmtsLayer.centerAt({ duration: 1.5 });
+        } catch (error) {
+          window.alert(error instanceof Error ? error.message : '定位失败');
+        }
+      });
+
+      wmtsLayer.centerAt({ duration: 0 });
+    </script>
+  </body>
+</html>

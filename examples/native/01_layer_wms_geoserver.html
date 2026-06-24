@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WiseLayer · WMS 原生 HTML 示例</title>
+  <link rel="stylesheet" href="./lib/Cesium142/Build/Cesium/Widgets/widgets.css" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div id="app">
+    <div id="cesiumContainer"></div>
+    <aside id="panel">
+      <h1>WMS 图层</h1>
+      <p class="hint">GeoServer topp:states</p>
+
+      <div class="layer-header">
+        <h2>美国各州</h2>
+        <button type="button" id="locateBtn" class="locate-btn">定位</button>
+      </div>
+
+      <label class="row">
+        <span>显示图层</span>
+        <input type="checkbox" id="visibleInput" checked />
+      </label>
+      <label class="row">
+        <span>透明度</span>
+        <input type="range" id="alphaInput" min="0" max="1" step="0.05" value="0.85" />
+      </label>
+    </aside>
+  </div>
+
+  <script>
+    window.CESIUM_BASE_URL = './lib/Cesium142/Build/Cesium/';
+  </script>
+  <script src="./lib/Cesium142/Build/Cesium/Cesium.js"></script>
+  <script src="./lib/wiselayer/wiselayer.global.js"></script>
+  <script>
+    const WMS_LAYER_CONFIG = {
+      type: 'wms',
+      name: 'US States',
+      url: 'https://ahocevar.com/geoserver/wms',
+      layers: 'topp:states',
+      crs: 'EPSG:4326',
+      format: 'image/png',
+      rectangle: { west: -125, south: 24, east: -66, north: 50 },
+    };
+
+    function getElement(id) {
+      const element = document.getElementById(id);
+      if (!element) {
+        throw new Error('未找到 DOM 元素：#' + id);
+      }
+      return element;
+    }
+
+    const viewer = WiseLayer.createViewer('cesiumContainer');
+    const wmsLayer = WiseLayer.createLayer(WMS_LAYER_CONFIG);
+    wmsLayer.addTo(viewer);
+    wmsLayer.setAlpha(0.85);
+
+    const visibleInput = getElement('visibleInput');
+    const alphaInput = getElement('alphaInput');
+    const locateBtn = getElement('locateBtn');
+
+    visibleInput.addEventListener('change', function () {
+      wmsLayer.setVisible(visibleInput.checked);
+    });
+
+    alphaInput.addEventListener('input', function () {
+      wmsLayer.setAlpha(Number(alphaInput.value));
+    });
+
+    locateBtn.addEventListener('click', function () {
+      try {
+        wmsLayer.centerAt({ duration: 1.5 });
+      } catch (error) {
+        window.alert(error instanceof Error ? error.message : '定位失败');
+      }
+    });
+
+    wmsLayer.centerAt({ duration: 0 });
+  </script>
+</body>
+
+</html>
