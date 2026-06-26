@@ -1,6 +1,6 @@
 {
   "name": "wiselayer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "WMS/WMTS layer abstraction for Cesium",
   "type": "module",
   "main": "./dist/index.cjs",
