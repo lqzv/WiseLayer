@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createLayer } from '../src/factory/createLayer.js';
 import { WmsLayer } from '../src/layers/WmsLayer.js';
 import { WmtsLayer } from '../src/layers/WmtsLayer.js';
+import { TiandituLayer } from '../src/layers/TiandituLayer.js';
 import type { LayerOptions } from '../src/types/index.js';
 
 describe('createLayer', () => {
@@ -26,6 +27,18 @@ describe('createLayer', () => {
 
     expect(layer).toBeInstanceOf(WmtsLayer);
     expect(layer.type).toBe('wmts');
+  });
+
+  it('creates TiandituLayer for tianditu type', () => {
+    const layer = createLayer({
+      type: 'tianditu',
+      token: 'test-token',
+      imageType: 'imagery',
+      crs: 'EPSG:3857',
+    });
+
+    expect(layer).toBeInstanceOf(TiandituLayer);
+    expect(layer.type).toBe('tianditu');
   });
 
   it('throws for unsupported layer type', () => {

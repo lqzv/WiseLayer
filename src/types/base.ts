@@ -9,9 +9,9 @@ export interface BaseLayerOptions {
   id?: string;
   /** 图层显示名称，未指定时使用 id */
   name?: string;
-  /** 是否可见，默认 true（需在 addTo 之后通过 setVisible 生效） */
+  /** 是否可见，默认 true；在 addTo 时自动应用 */
   show?: boolean;
-  /** 图层透明度，取值范围 0~1，默认 1 */
+  /** 图层透明度，取值范围 0~1，默认 1；在 addTo 时自动应用 */
   alpha?: number;
   /** 最小缩放级别（瓦片层级下限） */
   minimumLevel?: number;

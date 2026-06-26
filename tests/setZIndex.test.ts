@@ -30,7 +30,7 @@ function createMockCollection(initialLayers: unknown[] = []) {
       [layers[index], layers[index - 1]] = [layers[index - 1], layers[index]];
     },
     addImageryProvider(_provider: unknown) {
-      const layer = { id: `layer-${layers.length}` };
+      const layer = { id: `layer-${layers.length}`, show: true, alpha: 1 };
       layers.push(layer);
       syncLength();
       return layer;
@@ -116,5 +116,26 @@ describe('setZIndex', () => {
     });
 
     expect(() => layer.setZIndex(0)).toThrow('Layer must be added to a viewer before setZIndex');
+  });
+
+  it('applies show and alpha from options on addTo', () => {
+    const collection = createMockCollection();
+    const viewer = { imageryLayers: collection };
+
+    const layer = new WmsLayer({
+      type: 'wms',
+      url: 'https://example.com/wms',
+      layers: 'test',
+      show: false,
+      alpha: 0.6,
+    });
+
+    layer.addTo(viewer as never);
+
+    const imageryLayer = collection.getLayers()[0] as { show: boolean; alpha: number };
+    expect(imageryLayer.show).toBe(false);
+    expect(imageryLayer.alpha).toBe(0.6);
+    expect(layer.alpha).toBe(0.6);
+    expect(layer.show).toBe(false);
   });
 });

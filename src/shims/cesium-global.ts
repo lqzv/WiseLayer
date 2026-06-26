@@ -12,6 +12,8 @@ export const Rectangle = cesium.Rectangle;
 export const Viewer = cesium.Viewer;
 export const WebMapTileServiceImageryProvider = cesium.WebMapTileServiceImageryProvider;
 export const WebMapServiceImageryProvider = cesium.WebMapServiceImageryProvider;
+export const GeographicTilingScheme = cesium.GeographicTilingScheme;
+export const WebMercatorTilingScheme = cesium.WebMercatorTilingScheme;
 
 export type Viewer = import('cesium').Viewer;
 export type ImageryLayer = import('cesium').ImageryLayer;

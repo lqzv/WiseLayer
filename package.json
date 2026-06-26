@@ -1,6 +1,6 @@
 {
   "name": "wiselayer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "WMS/WMTS layer abstraction for Cesium",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -24,7 +24,7 @@
     "test:watch": "vitest",
     "docs:api": "typedoc",
     "prepublishOnly": "npm run build && npm run test",
-    "release": "npm publish"
+    "release": "npm version patch && npm publish"
   },
   "keywords": [
     "cesium",
@@ -36,6 +36,15 @@
     "layer"
   ],
   "license": "MIT",
+  "author": "lqzv <lqzv@163.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lqzv/WiseLayer.git"
+  },
+  "homepage": "https://github.com/lqzv/WiseLayer#readme",
+  "bugs": {
+    "url": "https://github.com/lqzv/WiseLayer/issues"
+  },
   "peerDependencies": {
     "cesium": "^1.142.0"
   },

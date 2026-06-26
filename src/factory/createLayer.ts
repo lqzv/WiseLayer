@@ -3,30 +3,34 @@ import type { LayerOptions } from '../types/index.js';
 import type { ILayer } from '../layers/BaseLayer.js';
 import { WmsLayer } from '../layers/WmsLayer.js';
 import { WmtsLayer } from '../layers/WmtsLayer.js';
+import { TiandituLayer } from '../layers/TiandituLayer.js';
 import type { FetchWmsLayerConfigsOptions, WmsLayerOptions } from '../types/wms.js';
 import type { FetchWmtsLayerConfigsOptions, WmtsLayerOptions } from '../types/wmts.js';
+import type { TiandituLayerOptions } from '../types/tianditu.js';
 import { fetchWmsLayerConfigs } from '../utils/wmsCapabilities.js';
 import { fetchWmtsLayerConfigs } from '../utils/wmtsCapabilities.js';
 
 /**
  * 根据配置创建图层实例（工厂方法）。
  *
- * 通过 `type` 字段自动分发到 {@link WmsLayer} 或 {@link WmtsLayer}。
+ * 通过 `type` 字段自动分发到 {@link WmsLayer}、{@link WmtsLayer} 或 {@link TiandituLayer}。
  * TypeScript 会根据 `type` 字面量推断返回的具体类型。
  *
  * @example
  * ```typescript
  * const wms = createLayer({ type: 'wms', url: '...', layers: 'states' });
  * const wmts = createLayer({ type: 'wmts', url: '...', layer: 'img', tileMatrixSetID: 'EPSG:3857' });
+ * const tianditu = createLayer({ type: 'tianditu', token: 'YOUR_TOKEN', imageType: 'imagery' });
  * wms.addTo(viewer);
  * ```
  *
- * @param options - WMS 或 WMTS 图层配置
+ * @param options - WMS、WMTS 或天地图图层配置
  * @returns 对应协议类型的图层实例
- * @throws 当 `type` 不是 `'wms'` 或 `'wmts'` 时抛出
+ * @throws 当 `type` 不受支持时抛出
  */
 export function createLayer(options: WmsLayerOptions): WmsLayer;
 export function createLayer(options: WmtsLayerOptions): WmtsLayer;
+export function createLayer(options: TiandituLayerOptions): TiandituLayer;
 export function createLayer(options: LayerOptions): ILayer;
 export function createLayer(options: LayerOptions): ILayer {
   switch (options.type) {
@@ -34,6 +38,8 @@ export function createLayer(options: LayerOptions): ILayer {
       return new WmsLayer(options);
     case 'wmts':
       return new WmtsLayer(options);
+    case 'tianditu':
+      return new TiandituLayer(options);
     default: {
       const unknownType = (options as { type?: string }).type ?? 'unknown';
       throw new Error(`Unsupported layer type: ${unknownType}`);

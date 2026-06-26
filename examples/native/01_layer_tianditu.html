@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WiseLayer · 天地图原生 HTML 示例</title>
+    <link rel="stylesheet" href="./lib/Cesium142/Build/Cesium/Widgets/widgets.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="cesiumContainer"></div>
+      <aside id="panel">
+        <h1>天地图图层</h1>
+        <p class="hint">支持 EPSG:3857 / EPSG:4326，矢量 / 影像及注记</p>
+
+        <label class="row">
+          <span>Token (tk)</span>
+          <input type="text" id="tokenInput" value="7ebf317dd1d8a3bbce26c8f5c08a528f" />
+        </label>
+
+        <div class="preset-group">
+          <button type="button" id="btn3857Vector" class="preset-btn active">
+            Web 墨卡托 · 矢量 + 注记
+          </button>
+          <button type="button" id="btn3857Imagery" class="preset-btn">
+            Web 墨卡托 · 影像 + 注记
+          </button>
+          <button type="button" id="btn4326Vector" class="preset-btn">
+            经纬直投 · 矢量 + 注记
+          </button>
+          <button type="button" id="btn4326Imagery" class="preset-btn">
+            经纬直投 · 影像 + 注记
+          </button>
+        </div>
+
+        <div class="layer-header">
+          <h2>图层控制</h2>
+          <button type="button" id="locateBtn" class="locate-btn">定位</button>
+        </div>
+
+        <label class="row">
+          <span>显示图层</span>
+          <input type="checkbox" id="visibleInput" checked />
+        </label>
+        <label class="row">
+          <span>透明度</span>
+          <input type="range" id="alphaInput" min="0" max="1" step="0.05" value="1" />
+        </label>
+      </aside>
+    </div>
+
+    <script>
+      window.CESIUM_BASE_URL = './lib/Cesium142/Build/Cesium/';
+    </script>
+    <script src="./lib/Cesium142/Build/Cesium/Cesium.js"></script>
+    <script src="./lib/wiselayer/wiselayer.global.js"></script>
+    <script>
+      function getElement(id) {
+        const element = document.getElementById(id);
+        if (!element) {
+          throw new Error('未找到 DOM 元素：#' + id);
+        }
+        return element;
+      }
+
+      const viewer = WiseLayer.createViewer('cesiumContainer');
+
+      const tokenInput = getElement('tokenInput');
+      const visibleInput = getElement('visibleInput');
+      const alphaInput = getElement('alphaInput');
+      const locateBtn = getElement('locateBtn');
+
+      let activeLayers = [];
+
+      function setActiveButton(activeButton) {
+        for (const button of document.querySelectorAll('.preset-btn')) {
+          button.classList.toggle('active', button === activeButton);
+        }
+      }
+
+      function loadLayers(layerConfigs, activeButton) {
+        for (const layer of activeLayers) {
+          layer.remove();
+        }
+
+        if (activeButton) {
+          setActiveButton(activeButton);
+        }
+
+        const show = visibleInput.checked;
+        const alpha = Number(alphaInput.value);
+
+        activeLayers = layerConfigs.map(function (config) {
+          const layer = WiseLayer.createLayer({
+            ...config,
+            show: config.show ?? show,
+            alpha: config.alpha ?? alpha,
+          });
+          layer.addTo(viewer);
+          return layer;
+        });
+      }
+
+      function getToken() {
+        return tokenInput.value.trim();
+      }
+
+      // Web 墨卡托 · 矢量 + 注记
+      getElement('btn3857Vector').addEventListener('click', function () {
+        const token = getToken();
+        loadLayers(
+          [
+            { type: 'tianditu', token: token, crs: 'EPSG:3857', imageType: 'vector' },
+            { type: 'tianditu', token: token, crs: 'EPSG:3857', imageType: 'vectorAnnotation' },
+          ],
+          getElement('btn3857Vector'),
+        );
+      });
+
+      // Web 墨卡托 · 影像 + 注记
+      getElement('btn3857Imagery').addEventListener('click', function () {
+        const token = getToken();
+        loadLayers(
+          [
+            { type: 'tianditu', token: token, crs: 'EPSG:3857', imageType: 'imagery' },
+            { type: 'tianditu', token: token, crs: 'EPSG:3857', imageType: 'imageryAnnotation' },
+          ],
+          getElement('btn3857Imagery'),
+        );
+      });
+
+      // 经纬直投 · 矢量 + 注记
+      getElement('btn4326Vector').addEventListener('click', function () {
+        const token = getToken();
+        loadLayers(
+          [
+            { type: 'tianditu', token: token, crs: 'EPSG:4326', imageType: 'vector' },
+            { type: 'tianditu', token: token, crs: 'EPSG:4326', imageType: 'vectorAnnotation' },
+          ],
+          getElement('btn4326Vector'),
+        );
+      });
+
+      // 经纬直投 · 影像 + 注记
+      getElement('btn4326Imagery').addEventListener('click', function () {
+        const token = getToken();
+        loadLayers(
+          [
+            { type: 'tianditu', token: token, crs: 'EPSG:4326', imageType: 'imagery' },
+            { type: 'tianditu', token: token, crs: 'EPSG:4326', imageType: 'imageryAnnotation' },
+          ],
+          getElement('btn4326Imagery'),
+        );
+      });
+
+      visibleInput.addEventListener('change', function () {
+        for (const layer of activeLayers) {
+          layer.setVisible(visibleInput.checked);
+        }
+      });
+
+      alphaInput.addEventListener('input', function () {
+        const alpha = Number(alphaInput.value);
+        for (const layer of activeLayers) {
+          layer.setAlpha(alpha);
+        }
+      });
+
+      locateBtn.addEventListener('click', function () {
+        try {
+          activeLayers[0].centerAt({ duration: 1.5 });
+        } catch (error) {
+          window.alert(error instanceof Error ? error.message : '定位失败');
+        }
+      });
+
+      getElement('btn3857Vector').click();
+    </script>
+  </body>
+</html>

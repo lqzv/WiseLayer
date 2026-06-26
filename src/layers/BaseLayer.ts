@@ -15,7 +15,7 @@ import {
 export interface ILayer {
   /** 图层唯一标识 */
   readonly id: string;
-  /** 图层协议类型，如 'wms'、'wmts' */
+  /** 图层协议类型，如 `'wms'`、`'wmts'`、`'tianditu'` */
   readonly type: string;
   /** 图层显示名称 */
   readonly name: string;
@@ -61,11 +61,23 @@ export abstract class BaseLayer implements ILayer {
   protected provider: ImageryProvider | undefined;
   /** 用户配置的初始 zIndex，addTo 时自动应用 */
   protected requestedZIndex: number | undefined;
+  /** 用户配置的初始可见性，addTo 时自动应用 */
+  protected requestedShow: boolean | undefined;
+  /** 用户配置的初始透明度，addTo 时自动应用 */
+  protected requestedAlpha: number | undefined;
 
-  constructor(options: { id?: string; name?: string; zIndex?: number }) {
+  constructor(options: {
+    id?: string;
+    name?: string;
+    zIndex?: number;
+    show?: boolean;
+    alpha?: number;
+  }) {
     this.id = options.id ?? crypto.randomUUID();
     this.name = options.name ?? this.id;
     this.requestedZIndex = options.zIndex;
+    this.requestedShow = options.show;
+    this.requestedAlpha = options.alpha;
   }
 
   /** 子类实现：根据协议配置创建 Cesium ImageryProvider */
@@ -76,7 +88,7 @@ export abstract class BaseLayer implements ILayer {
   abstract setZIndex(zIndex: number): number;
 
   get show(): boolean {
-    return this.imageryLayer?.show ?? true;
+    return this.imageryLayer?.show ?? this.requestedShow ?? true;
   }
 
   set show(value: boolean) {
@@ -86,7 +98,7 @@ export abstract class BaseLayer implements ILayer {
   }
 
   get alpha(): number {
-    return this.imageryLayer?.alpha ?? 1;
+    return this.imageryLayer?.alpha ?? this.requestedAlpha ?? 1;
   }
 
   set alpha(value: number) {
@@ -98,7 +110,7 @@ export abstract class BaseLayer implements ILayer {
   /**
    * 将图层添加到 Viewer。
    * 若已添加则先移除旧实例，再创建新的 ImageryProvider 并加入 imageryLayers。
-   * 若配置了 zIndex，添加完成后自动调整叠放顺序。
+   * 若配置了 zIndex、show、alpha，添加完成后自动应用。
    */
   addTo(viewer: Viewer): ImageryLayer {
     this.remove();
@@ -106,6 +118,8 @@ export abstract class BaseLayer implements ILayer {
     this.viewer = viewer;
     this.provider = this.toImageryProvider();
     this.imageryLayer = viewer.imageryLayers.addImageryProvider(this.provider);
+    this.imageryLayer.show = this.requestedShow ?? true;
+    this.imageryLayer.alpha = this.requestedAlpha ?? 1;
 
     if (this.requestedZIndex !== undefined) {
       this.setZIndex(this.requestedZIndex);
@@ -126,10 +140,12 @@ export abstract class BaseLayer implements ILayer {
   }
 
   setVisible(visible: boolean): void {
+    this.requestedShow = visible;
     this.show = visible;
   }
 
   setAlpha(alpha: number): void {
+    this.requestedAlpha = alpha;
     this.alpha = alpha;
   }
 
